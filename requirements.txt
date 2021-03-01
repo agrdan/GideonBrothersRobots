@@ -1,0 +1,8 @@
+flask
+Flask-WTF
+flask-restful
+flask-apispec
+WTForms
+flask_sqlalchemy
+pymysql
+requests
