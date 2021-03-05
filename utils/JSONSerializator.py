@@ -27,5 +27,12 @@ class JSONSerializator(ABC):
         return json.dumps(self.__dict__)
 
 
+    def getKeyList(self):
+        keys = []
+        for k in self.__dict__:
+            keys.append(str(k))
+        return keys
+
+
     def __repr__(self):
         return str(self.__dict__)

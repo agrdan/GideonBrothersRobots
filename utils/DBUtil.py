@@ -1,4 +1,5 @@
 from main import db
+from utils.Logger import Logger
 
 class DBUtil:
 
@@ -20,6 +21,11 @@ class DBUtil:
             print(e)
             return False, str(e)
 
+
+
+    @staticmethod
+    def commit():
+        db.session.commit()
 
     @staticmethod
     def findAll(clazz):
@@ -59,4 +65,10 @@ class DBUtil:
     @staticmethod
     def findByToken(clazz, token):
         entity = clazz.query.filter_by(token=token).one_or_none()
+        return entity
+
+
+    @staticmethod
+    def findByType(clazz, _type):
+        entity = clazz.query.filter_by(type=_type).one_or_none()
         return entity

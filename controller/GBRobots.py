@@ -1,47 +1,25 @@
-from main import app, api, ns
-from flask_restplus import Resource
-from flask import request, Blueprint
+from main import app, api
+from flask import request, Blueprint, render_template, jsonify, Response
 import json
+from flask_restful import Resource
+from service.GBRobotService import GBRobotService
+
 
 gbRobot = Blueprint('gbRobot', __name__)
 
 
-@ns.route('/')
-class CategoryCollection(Resource):
 
-    def get(self):
-        model = {
-            'model': 'get'
-        }
-        return json.dumps(model)
+class GBRobots:
 
-    @api.response(201, 'Category successfully created.')
-    def post(self):
-        """Creates a new blog category."""
-        model = {
-            'model': 'post'
-        }
-        return json.dumps(model)
+    @staticmethod
+    @gbRobot.route('/', methods=['POST', 'PUT', 'GET', 'DELETE'])
+    def robotCRUD():
+        return GBRobotService.action(request.method, request.json)
 
 
-"""
-@ns.route('/<int:id>')
-@api.response(404, 'Category not found.')
-class CategoryItem(Resource):
+    @staticmethod
+    @gbRobot.route("/<string:id>", methods=['POST', 'PUT', 'GET', 'DELETE'])
+    def robotCrud(id):
+        return GBRobotService.action(request.method, request.json, id)
 
-    def get(self, id):
-        
-        return get_category(id)
 
-    @api.response(204, 'Category successfully updated.')
-    def put(self, id):
-        
-        update_category(id, request.json)
-        return None, 204
-
-    @api.response(204, 'Category successfully deleted.')
-    def delete(self, id):
-        
-        delete_category(id)
-        return None, 204
-"""
