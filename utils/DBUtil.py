@@ -72,3 +72,21 @@ class DBUtil:
     def findByType(clazz, _type):
         entity = clazz.query.filter_by(type=_type).one_or_none()
         return entity
+
+
+    @staticmethod
+    def taskExecutionFilter(clazz, taskId=None, robotId=None, dateFrom=None, dateTo=None,
+                            timeFrom=None, timeTo=None, durationFrom=None,
+                            durationTo=None, status=None):
+        query = clazz.query
+        if taskId is not None:
+            query = clazz.query.filter_by(task_id=taskId)
+        if robotId is not None:
+            query = query.filter_by(robot_id=robotId)
+        if status is not None:
+            query = query.filter_by(status=status)
+        if timeFrom is not None and timeTo is not None:
+            query = query.filter_by()
+
+        entityList = query.all()
+        return entityList

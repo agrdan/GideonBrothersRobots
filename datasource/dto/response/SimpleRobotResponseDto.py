@@ -2,7 +2,7 @@ from utils.JSONSerializator import JSONSerializator
 from datasource.dto.response.RobotTypeResponseDto import RobotTypeResponseDto
 
 
-class SimpleRobotResponseV2Dto(JSONSerializator):
+class SimpleRobotResponseDto(JSONSerializator):
 
     def __init__(self):
         self.id = None

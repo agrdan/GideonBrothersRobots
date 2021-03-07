@@ -9,26 +9,27 @@ class TaskExecution(db.Model):
     uuid = db.Column(db.String(36), unique=True, nullable=False)
     task_id = db.Column(db.Integer(), db.ForeignKey('task.id'))
     robot_id = db.Column(db.Integer(), db.ForeignKey('robot.id'))
-    start_time = db.Column(db.DateTime, nullable=False)
-    end_time = db.Column(db.DateTime, nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    start_time = db.Column(db.Time, nullable=False)
+    end_time = db.Column(db.Time, nullable=False)
     duration = db.Column(db.Integer(), nullable=False)
     status = db.Column(db.Boolean)
     created = db.Column(db.String(20))
 
     @staticmethod
-    def create(taskId, robotId, startTime, timestamp):
+    def create(taskId, robotId, date, startTime, timestamp):
         task = TaskExecution()
         task.uuid = str(uuid.uuid4())
         task.task_id = taskId
+        task.date = date
         task.robot_id = robotId
         task.start_time = startTime
         task.created = timestamp
         return task
 
-    def setEnd(self, endTime, status):
+    def setEnd(self, endTime, duration, status):
         self.end_time = endTime
-        diff = self.end_time - self.start_time
-        self.duration = diff.seconds
+        self.duration = duration
         self.status = status
 
     @staticmethod

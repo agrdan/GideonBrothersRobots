@@ -1,3 +1,4 @@
+"""
 from datasource.dto.request.RobotRequestDto import RobotRequestDto
 from utils.Utils import Utils
 from utils.JSONSerializator import JSONSerializator
@@ -6,6 +7,7 @@ from datetime import datetime as dt
 from datasource.entity.TaskExecutionEntity import TaskExecution
 from time import sleep as delay
 from utils.DBUtil import DBUtil
+"""
 """
 test = {
     'name': 'test',
@@ -21,7 +23,9 @@ print(rr.getKeyList())
 diff = all(elem in t.getKeyList() for elem in rr.getKeyList())
 print(diff)
 """
-
+asd = bool(0)
+print(asd)
+"""
 class Test:
 
     def __init__(self):
@@ -54,3 +58,4 @@ if __name__ == '__main__':
 
 
 
+"""
