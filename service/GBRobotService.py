@@ -9,15 +9,27 @@ from datetime import datetime as dt
 from utils.DBUtil import DBUtil
 from utils.Utils import Utils
 from utils.JSONSerializator import JSONSerializator
+from service.GBLoginService import LoginService
+
+AUTH_TOKEN = 'Auth-Token'
 
 
 class GBRobotService:
 
-    def __init__(self):
-        pass
-
     @staticmethod
-    def action(method, modelDto, id=None):
+    def action(method, modelDto, header, id=None):
+        token = None
+        try:
+            token = header.get(AUTH_TOKEN)
+        except:
+            pass
+
+        if token is None:
+            return Utils.JsonMessage("Token parameter not found!", 500)
+
+        if not LoginService.validateJWTToken(token):
+            return Utils.JsonMessage("Unauthorized", 401)
+
         if id is not None:
             model = None
             if modelDto is not None:
@@ -34,7 +46,7 @@ class GBRobotService:
         else:
             if modelDto is not None:
                 robotRequestDto = RobotRequestDto().serialize(modelDto, ignoreProperties=False)
-                print(robotRequestDto)
+                Logger.info(robotRequestDto)
                 serialized = JSONSerializator().serialize(modelDto)
                 if Utils.check_object_propertis(RobotRequestDto(), serialized):
                     entity = Robot.createFromRequestDto(robotRequestDto, str(int(dt.now().timestamp())))
@@ -51,14 +63,21 @@ class GBRobotService:
                     else:
                         return Utils.JsonMessage(message, code)
                 else:
-                    return Utils.JsonMessage("JSON format is not valid. Check properties".format(id), 500)
+                    return Utils.JsonMessage("JSON format is not valid. Check properties", 500)
             else:
                 if method == 'GET':
                     status, result, message, code = GenericHelperService.handleMethod(Robot, method, None, None)
+                    dtoList = []
+                    for e in result:
+                        dto = SimpleRobotResponseDto()
+                        dto.fromEntity(e)
+                        dtoList.append(dto.getJson())
 
+                    listResponse = {
+                        'robots': dtoList
+                    }
+                    return Utils.JsonResponse(listResponse, 200)
                 return Utils.JsonMessage("ID and body cannot be empty!".format(id), 500)
-
-
 
     @staticmethod
     def getRobotTypeByValue(typeValue):
@@ -67,9 +86,7 @@ class GBRobotService:
         dto.fromEntity(entity)
         print(dto.dumpModel())
 
-
     @staticmethod
     def getRobotById(id):
         robotEntity = GenericHelperService.getModelById(Robot, id)
         return robotEntity
-

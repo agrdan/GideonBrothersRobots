@@ -17,9 +17,10 @@ class GenericHelperService:
             s, model = DBUtil.insert(model)
             status = s
             result = model
+            code = 201
             if not status:
                 code = 500
-                message = "Robot not created [{}]".format(model)
+                message = "Entity not created [{}]".format(model)
         elif method == 'PUT':
             if entityById is not None:
                 GenericHelperService.compareWithCurrent(entityById, model)
@@ -46,17 +47,19 @@ class GenericHelperService:
             else:
                 status = True
         elif method == 'DELETE':
-            success = True
             if entityById is not None:
-                DBUtil.delete(entityById)
+                entityById.active = False
+                DBUtil.commit()
+                status = False
+                code = 200
+                message = "Successfully deleted"
             else:
-                try:
-                    DBUtil.delete(model)
-                except:
-                    success = False
+                status = False
+                code = 404
+                message = "Entity not found"
 
-            if not success:
-                pass
+            result = None
+
 
         return status, result, message, code
 

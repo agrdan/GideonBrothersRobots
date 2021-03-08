@@ -1,8 +1,8 @@
 from main import db
 import uuid
 
-class TaskExecution(db.Model):
 
+class TaskExecution(db.Model):
     __tablename__ = 'task_execution'
 
     id = db.Column(db.Integer(), primary_key=True)
@@ -34,9 +34,8 @@ class TaskExecution(db.Model):
 
     @staticmethod
     def createFromRequestDto(requestDto, timestamp):
-        #return TaskExecution.create(requestDto.name, requestDto.type, timestamp)
+        # return TaskExecution.create(requestDto.name, requestDto.type, timestamp)
         pass
-
 
     def __repr__(self):
         return str(self.__dict__)

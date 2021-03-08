@@ -3,6 +3,7 @@ import datetime
 from datetime import datetime as dt
 from flask import Response
 import json
+from utils.Logger import Logger
 
 
 class Utils:
@@ -14,7 +15,7 @@ class Utils:
             parsedDate = date_formate.strftime("%Y-%m-%d")
             return parsedDate
         except Exception as e:
-            print(e)
+            Logger.info(e)
 
     @staticmethod
     def parseTimestamp(timestamp):

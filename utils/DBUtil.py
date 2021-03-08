@@ -1,5 +1,6 @@
 from main import db
 from utils.Logger import Logger
+from utils.Utils import Utils
 
 class DBUtil:
 
@@ -13,12 +14,12 @@ class DBUtil:
         try:
             db.session.add(model)
             db.session.commit()
-            print("Query executed successfuly!")
+            Logger.info("Query executed successfuly!")
             return True, model
         except Exception as e:
             db.session.rollback()
-            print("Query rollbacked!")
-            print(e)
+            Logger.info("Query rollbacked!")
+            Logger.info(e)
             return False, str(e)
 
 
@@ -80,13 +81,23 @@ class DBUtil:
                             durationTo=None, status=None):
         query = clazz.query
         if taskId is not None:
-            query = clazz.query.filter_by(task_id=taskId)
+            query = query.filter_by(task_id=taskId)
         if robotId is not None:
             query = query.filter_by(robot_id=robotId)
         if status is not None:
             query = query.filter_by(status=status)
-        if timeFrom is not None and timeTo is not None:
-            query = query.filter_by()
+        if dateFrom is not None:
+            query = query.filter(clazz.date >= dateFrom)
+        if durationFrom is not None:
+            query = query.filter(clazz.duration >= durationFrom)
+        if durationTo is not None:
+            query = query.filter(clazz.duration <= durationTo)
+        if dateFrom is not None:
+            d = Utils.parseStringDtToDate(dateFrom)
+            query = query.filter(clazz.date >= d)
+        if dateTo is not None:
+            d = Utils.parseStringDtToDate(dateTo)
+            query = query.filter(clazz.date <= d)
 
         entityList = query.all()
         return entityList

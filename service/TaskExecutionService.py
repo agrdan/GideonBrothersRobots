@@ -7,6 +7,8 @@ from datasource.entity.RobotEntity import Robot
 from datasource.entity.TaskEntity import Task
 from datasource.entity.TaskExecutionEntity import TaskExecution
 from datasource.dto.response.TaskExecutedResponseDto import TaskExecutedResponseDto
+from service.GBLoginService import LoginService
+
 
 class ExecuteTasks(Thread):
 
@@ -18,20 +20,34 @@ class ExecuteTasks(Thread):
 
 
 ROBOT_ID = 'robot_id'
-SIMULATED_TIME = 'simulated_length'
+SIMULATED_TIME = 'simulated_time_seconds'
 SIMULATED_STATUS = 'simulated_status'
 
 FILTER_TASK_ID = 'taskId'
 FILTER_ROBOT_ID = 'robotId'
 FILTER_STATUS = 'status'
+FILTER_DURATION_FROM = 'durationFrom'
+FILTER_DURATION_TO = 'durationTo'
+FILTER_DATE_FROM = 'dateFrom'
+FILTER_DATE_TO = 'dateTo'
+
+AUTH_TOKEN = 'Auth-Token'
+
 
 class TaskExecutionService:
 
-
-
     @staticmethod
-    def execute(id, args):
+    def execute(id, args, header):
+        token = None
+        try:
+            token = header.get(AUTH_TOKEN)
+        except:
+            pass
 
+        if token is None:
+            return Utils.JsonMessage("Token parameter not found!", 500)
+        if not LoginService.validateJWTToken(token):
+            return Utils.JsonMessage("Unauthorized", 401)
         task = DBUtil.findById(Task, id)
         if task is None:
             return Utils.JsonMessage("Task ID[{}] does not exists!".format(id), 404)
@@ -75,7 +91,6 @@ class TaskExecutionService:
             if simulatedStatus is not None:
                 s = bool(int(simulatedStatus))
 
-
             execution.setEnd(endTime.time(), duration.seconds, s)
             status, model = DBUtil.insert(execution)
             if status:
@@ -84,10 +99,19 @@ class TaskExecutionService:
             else:
                 return Utils.JsonMessage("Task ID[{}] not executed!", 500)
 
-
     @staticmethod
-    def getAll():
+    def getAll(header):
+        token = None
+        try:
+            token = header.get(AUTH_TOKEN)
+            print(token)
+        except:
+            pass
 
+        if token is None:
+            return Utils.JsonMessage("Token parameter not found!", 500)
+        if not LoginService.validateJWTToken(token):
+            return Utils.JsonMessage("Unauthorized", 401)
         entityList = DBUtil.findAll(TaskExecution)
         dtoList = []
         for e in entityList:
@@ -102,12 +126,26 @@ class TaskExecutionService:
         return Utils.JsonResponse(jsonList, 200)
 
     @staticmethod
-    def getAllF(args):
+    def getAllF(args, header):
+        token = None
+        try:
+            token = header.get(AUTH_TOKEN)
+        except:
+            pass
 
+        if token is None:
+            return Utils.JsonMessage("Token parameter not found!", 500)
+        if not LoginService.validateJWTToken(token):
+            return Utils.JsonMessage("Unauthorized", 401)
         # entityList = DBUtil.findAll(TaskExecution)
         taskID = None
         robotID = None
         status = None
+        durationFrom = None
+        durationTo = None
+        dateFrom = None
+        dateTo = None
+
         try:
             taskID = args.get(FILTER_TASK_ID)
         except:
@@ -120,7 +158,27 @@ class TaskExecutionService:
             status = args.get(FILTER_STATUS)
         except:
             pass
-        entityList = DBUtil.taskExecutionFilter(TaskExecution, taskId=taskID, robotId=robotID, status=status)
+
+        try:
+            durationFrom = args.get(FILTER_DURATION_FROM)
+        except:
+            pass
+
+        try:
+            durationTo = args.get(FILTER_DURATION_TO)
+        except:
+            pass
+
+        try:
+            dateFrom = args.get(FILTER_DATE_FROM)
+        except:
+            pass
+
+        try:
+            dateTo = args.get(FILTER_DATE_TO)
+        except:
+            pass
+        entityList = DBUtil.taskExecutionFilter(TaskExecution, taskId=taskID, robotId=robotID, status=status, durationFrom=durationFrom, durationTo=durationTo, dateFrom=dateFrom, dateTo=dateTo)
         dtoList = []
         for e in entityList:
             dto = TaskExecutedResponseDto()

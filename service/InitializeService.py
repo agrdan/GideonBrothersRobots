@@ -6,7 +6,7 @@ from datasource.entity.RobotEntity import Robot
 from datasource.entity.TaskType import TaskType, TaskTypes
 from datasource.entity.TaskEntity import Task
 from datasource.entity.TaskExecutionEntity import TaskExecution
-
+from datasource.entity.LoginEntity import Login
 
 class InitializeService:
 

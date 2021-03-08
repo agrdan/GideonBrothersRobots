@@ -1,6 +1,7 @@
 from main import db
 from enum import Enum
 
+
 class TaskTypes(Enum):
     TRANSPORTATION = 200
     CHARGING = 201
@@ -8,7 +9,6 @@ class TaskTypes(Enum):
 
 
 class TaskType(db.Model):
-
     __tablename__ = 'task_type'
     id = db.Column(db.Integer(), primary_key=True)
     type = db.Column(db.Integer(), nullable=False, unique=True)

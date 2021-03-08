@@ -1,5 +1,6 @@
 from main import db
 from datetime import datetime as dt
+from utils.Logger import Logger
 
 
 class ChangeLog(db.Model):
@@ -13,8 +14,6 @@ class ChangeLog(db.Model):
         log = ChangeLog.query.filter_by(name=name).all()
         successful = False
         if log is not None and len(log) > 0:
-            print(len(log))
-            print(log)
             return
         else:
             try:
@@ -24,7 +23,7 @@ class ChangeLog(db.Model):
                         db.session.add(o)
                         successful = True
                     except Exception as e:
-                        print(e)
+                        Logger.info(e)
                         db.session.rollback()
                         successful = False
 
@@ -35,6 +34,6 @@ class ChangeLog(db.Model):
 
                 db.session.commit()
             except Exception as e:
-                print(e)
+                Logger.info(e)
                 db.session.rollback()
                 raise

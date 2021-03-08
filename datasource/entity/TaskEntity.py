@@ -1,7 +1,7 @@
 from main import db
 
-class Task(db.Model):
 
+class Task(db.Model):
     __tablename__ = 'task'
 
     id = db.Column(db.Integer(), primary_key=True)
