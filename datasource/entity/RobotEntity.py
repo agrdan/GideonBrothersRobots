@@ -7,6 +7,7 @@ class Robot(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
     type = db.Column(db.Integer(), db.ForeignKey('robot_type.type'), nullable=False)
+    active = db.Column(db.Boolean, nullable=False, default=True)
     created = db.Column(db.String(20))
 
     @staticmethod

@@ -54,7 +54,7 @@ class LoginService:
             "username": model.username,
             "password": model.password
         }
-        return str(jwt.encode(m, app.config["salt"]))
+        return str(jwt.encode(m, app.config["salt"]), "utf-8")
 
     @staticmethod
     def decodeJWTToken(token):

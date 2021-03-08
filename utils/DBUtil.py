@@ -14,15 +14,13 @@ class DBUtil:
         try:
             db.session.add(model)
             db.session.commit()
-            Logger.info("Query executed successfuly!")
+            print("Query executed successfuly!")
             return True, model
         except Exception as e:
             db.session.rollback()
-            Logger.info("Query rollbacked!")
-            Logger.info(e)
+            print("Query rollbacked!")
+            print(e)
             return False, str(e)
-
-
 
     @staticmethod
     def commit():
@@ -30,13 +28,23 @@ class DBUtil:
 
     @staticmethod
     def findAll(clazz):
-        eList = clazz.query.all()
+        query = clazz.query
+        try:
+            query = query.filter_by(active=True)
+        except:
+            pass
+        eList = query.all()
         return eList
-
 
     @staticmethod
     def findById(clazz, id):
-        entity = clazz.query.filter_by(id=id).one_or_none()
+        query = clazz.query.filter_by(id=id)
+        try:
+            query = query.filter_by(active=True)
+        except:
+            pass
+        entity = query.one_or_none()
+
         return entity
 
 

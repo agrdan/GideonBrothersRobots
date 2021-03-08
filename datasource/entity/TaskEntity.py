@@ -7,6 +7,7 @@ class Task(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
     type = db.Column(db.Integer(), db.ForeignKey('task_type.type'))
+    active = db.Column(db.Boolean, nullable=False, default=True)
     created = db.Column(db.String(20))
 
     @staticmethod
