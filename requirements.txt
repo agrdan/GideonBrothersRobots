@@ -6,4 +6,5 @@ WTForms
 flask_sqlalchemy
 pymysql
 requests
+psycopg2
 pyjwt

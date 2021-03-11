@@ -1,4 +1,4 @@
-from flask import request, Blueprint
+from flask import request, Blueprint, Response
 
 from service.GBTaskService import GBTaskService
 from service.TaskExecutionService import TaskExecutionService
@@ -38,4 +38,12 @@ class GBTasks:
         return TaskExecutionService.getAllF(request.args, request.headers)
 
 
-
+    @staticmethod
+    @gbTask.route("/executed-f/csv", methods=['GET'])
+    def getExecutedTasksFiltersCSV():
+        csv = TaskExecutionService.getAllF(request.args, request.headers, exportCsv=True)
+        return Response(
+                csv,
+                mimetype="text/csv",
+                headers={"Content-disposition":
+                             "attachment; filename=filtered_tasks.csv"})

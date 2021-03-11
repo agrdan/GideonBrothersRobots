@@ -8,7 +8,7 @@ from datasource.entity.TaskEntity import Task
 from datasource.entity.TaskExecutionEntity import TaskExecution
 from datasource.dto.response.TaskExecutedResponseDto import TaskExecutedResponseDto
 from service.GBLoginService import LoginService
-
+from io import StringIO
 
 class ExecuteTasks(Thread):
 
@@ -37,17 +37,26 @@ AUTH_TOKEN = 'Auth-Token'
 class TaskExecutionService:
 
     @staticmethod
-    def execute(id, args, header):
-        token = None
-        try:
-            token = header.get(AUTH_TOKEN)
-        except:
-            pass
+    def checkToken(token):
 
         if token is None:
             return Utils.JsonMessage("Token parameter not found!", 500)
         if not LoginService.validateJWTToken(token):
             return Utils.JsonMessage("Unauthorized", 401)
+
+        return None
+
+    @staticmethod
+    def execute(id, args, header):
+
+        try:
+            token = header.get(AUTH_TOKEN)
+            status = TaskExecutionService.checkToken(token)
+            if status is not None:
+                return status
+        except:
+            return Utils.JsonMessage("Internal server error", 500)
+
         task = DBUtil.findById(Task, id)
         if task is None:
             return Utils.JsonMessage("Task ID[{}] does not exists!".format(id), 404)
@@ -101,17 +110,14 @@ class TaskExecutionService:
 
     @staticmethod
     def getAll(header):
-        token = None
         try:
             token = header.get(AUTH_TOKEN)
-            print(token)
+            status = TaskExecutionService.checkToken(token)
+            if status is not None:
+                return status
         except:
-            pass
+            return Utils.JsonMessage("Internal server error", 500)
 
-        if token is None:
-            return Utils.JsonMessage("Token parameter not found!", 500)
-        if not LoginService.validateJWTToken(token):
-            return Utils.JsonMessage("Unauthorized", 401)
         entityList = DBUtil.findAll(TaskExecution)
         dtoList = []
         for e in entityList:
@@ -126,58 +132,23 @@ class TaskExecutionService:
         return Utils.JsonResponse(jsonList, 200)
 
     @staticmethod
-    def getAllF(args, header):
-        token = None
+    def getAllF(args, header, exportCsv=False):
         try:
             token = header.get(AUTH_TOKEN)
+            status = TaskExecutionService.checkToken(token)
+            if status is not None:
+                return status
         except:
-            pass
+            return Utils.JsonMessage("Internal server error", 500)
 
-        if token is None:
-            return Utils.JsonMessage("Token parameter not found!", 500)
-        if not LoginService.validateJWTToken(token):
-            return Utils.JsonMessage("Unauthorized", 401)
-        # entityList = DBUtil.findAll(TaskExecution)
-        taskID = None
-        robotID = None
-        status = None
-        durationFrom = None
-        durationTo = None
-        dateFrom = None
-        dateTo = None
+        taskID = args.get(FILTER_TASK_ID)
+        robotID = args.get(FILTER_ROBOT_ID)
+        status = args.get(FILTER_STATUS)
+        durationFrom = args.get(FILTER_DURATION_FROM)
+        durationTo = args.get(FILTER_DURATION_TO)
+        dateFrom = args.get(FILTER_DATE_FROM)
+        dateTo = args.get(FILTER_DATE_TO)
 
-        try:
-            taskID = args.get(FILTER_TASK_ID)
-        except:
-            pass
-        try:
-            robotID = args.get(FILTER_ROBOT_ID)
-        except:
-            pass
-        try:
-            status = args.get(FILTER_STATUS)
-        except:
-            pass
-
-        try:
-            durationFrom = args.get(FILTER_DURATION_FROM)
-        except:
-            pass
-
-        try:
-            durationTo = args.get(FILTER_DURATION_TO)
-        except:
-            pass
-
-        try:
-            dateFrom = args.get(FILTER_DATE_FROM)
-        except:
-            pass
-
-        try:
-            dateTo = args.get(FILTER_DATE_TO)
-        except:
-            pass
         entityList = DBUtil.taskExecutionFilter(TaskExecution, taskId=taskID, robotId=robotID, status=status, durationFrom=durationFrom, durationTo=durationTo, dateFrom=dateFrom, dateTo=dateTo)
         dtoList = []
         for e in entityList:
@@ -188,5 +159,11 @@ class TaskExecutionService:
         jsonList = {
             'executed': dtoList
         }
-
-        return Utils.JsonResponse(jsonList, 200)
+        if exportCsv:
+            csvData = ""#StringIO()
+            for e in entityList:
+                csvData += "{};{};{};{};{};{};{};{};{};{}\n".format(e.id, e.uuid, e.task_id, e.robot_id, e.date, e.start_time, e.end_time, e.duration, e.status, e.created)
+            print(csvData)
+            return csvData
+        else:
+            return Utils.JsonResponse(jsonList, 200)
