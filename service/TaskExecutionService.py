@@ -61,24 +61,9 @@ class TaskExecutionService:
         if task is None:
             return Utils.JsonMessage("Task ID[{}] does not exists!".format(id), 404)
 
-        robotID = None
-        simulatedTime = None
-        simulatedStatus = None
-
-        try:
-            robotID = args.get(ROBOT_ID)
-        except Exception as e:
-            pass
-
-        try:
-            simulatedTime = args.get(SIMULATED_TIME)
-        except:
-            pass
-
-        try:
-            simulatedStatus = args.get(SIMULATED_STATUS)
-        except:
-            pass
+        robotID = args.get(ROBOT_ID)
+        simulatedTime = args.get(SIMULATED_TIME)
+        simulatedStatus = args.get(SIMULATED_STATUS)
 
         if robotID is None:
             Utils.JsonMessage("robot_id parameter is missing", 500)
